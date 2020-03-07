@@ -144,7 +144,7 @@ class Register extends Component {
 
   render() {
     return (
-      <div className="register-box">
+      <div className="register-box" style={{ marginTop: '50px' }}>
         <div className="register-logo">
           <a href="../../index2.html">
             <b>Basic</b>POS

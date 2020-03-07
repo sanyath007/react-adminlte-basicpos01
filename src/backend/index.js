@@ -27,6 +27,28 @@ sgMail.setApiKey(
   "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"
 );
 
+app.post('/login', async (req, res) => {
+  let doc = await Users.findOne({ username: req.body.username });
+
+  if(doc) {
+    if(bcrypt.compareSync(req.body.password, doc.password)) {
+      const payload = {
+        id: doc._id,
+        level: doc.level,
+        username: doc.username
+      };
+
+      let token = jwt.sign(payload);
+
+      res.json({ result: 'success', token, message: 'login successfully!!'});
+    } else {
+      res.json({ result: 'error', message: 'Invalid password!!'});
+    }
+  } else {
+    res.json({ result: 'error', message: 'Invalid username!!'});
+  }
+});
+
 app.post('/register', async (req, res) => {
   try {
     req.body.password = await bcrypt.hash(req.body.password, 8);
