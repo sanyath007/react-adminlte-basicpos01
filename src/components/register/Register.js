@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import swal from 'sweetalert';
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string()
@@ -20,13 +21,23 @@ const SignupSchema = Yup.object().shape({
 });
 
 class Register extends Component {
-  submitForm = (values) => {
+  submitForm = (values, history) => {
+    console.log(values);
     axios.post('http://localhost:8080/register', values)
       .then(res => {
         console.log(res);
+        if(res.data.result === 'success') {
+          swal('Success!', res.data.message, 'success')
+          .then(value => {
+            history.push('/login');
+          });
+        } else {
+          swal("Error!", res.data.message, "error");
+        }
       })
       .catch(err => {
         console.log(err);
+        swal('Error!', 'Unexpected error', 'error');
       });
   };
 
