@@ -15,6 +15,20 @@ const LoginSchema = Yup.object().shape({
 });
 
 class Login extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      alert: null
+    };
+  }
+
+  componentDidMount() {
+    if(localStorage.getItem('TOKEN_KEY') !== null) {
+      return this.props.history.goBack();
+    }
+  }
+
   submitForm = (values, history) => {
     axios.post('http://localhost:8080/login', values)
       .then(res => {
