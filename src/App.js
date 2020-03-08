@@ -11,18 +11,19 @@ import Register from './components/register';
 import Header from './components/header';
 import Sidebar from './components/sidebar';
 import Footer from './components/footer';
+import Profile from './components/profile';
 import Dashboard from './components/dashboard';
 
-const isLoggegIn = () => {
+const isLoggedIn = () => {
   return localStorage.getItem('TOKEN_KEY') !== null;
 }
 
 const SecuredRoute = ({ component: Component, ...rest }) => (
   <Route
-    { ...rest }
+    {...rest}
     render={props => 
-      isLoggegIn() === true ? (
-        <Component { ...props } />
+      isLoggedIn() === true ? (
+        <Component {...props} />
       ) : (
         <Redirect to="/login" />
       )
@@ -35,14 +36,15 @@ class App extends Component {
     return (
       <Router>
         <Switch>
-          <div>
-            { isLoggegIn() && <Header /> }
-            { isLoggegIn() && <Sidebar /> }
+          <>
+            { isLoggedIn() && <Header /> }
+            { isLoggedIn() && <Sidebar /> }
             <Route path="/register" component={Register} />
             <Route path="/login" component={Login} />
             <SecuredRoute path="/dashboard" component={Dashboard} />
-            { isLoggegIn() && <Footer /> }
-          </div>
+            <SecuredRoute path="/profile" component={Profile} />
+            { isLoggedIn() && <Footer /> }
+          </>
         </Switch>
       </Router>
     );
