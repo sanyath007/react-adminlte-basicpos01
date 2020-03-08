@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const schema = mongoose.Schema({
-  // avatars: String,
+  avatars: String,
   username: String,
   email: String,
-  // first_name: { type: String, default: "" },
-  // last_name: { type: String, default: "" },
-  // phone: { type: String, default: "" },
-  // address: { type: String, default: "" },
+  first_name: { type: String, default: "" },
+  last_name: { type: String, default: "" },
+  phone: { type: String, default: "" },
+  address: { type: String, default: "" },
   password: String,
   // status: { type: String, default: "not_activated" },
   // activated_token: { type: String, default: "" },

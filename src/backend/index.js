@@ -93,7 +93,42 @@ app.post('/register', async (req, res) => {
   } catch(err) {
     res.json({ result: 'error', message: err.errmsg });
   }
-})
+});
+
+app.get('/profile/id/:id', async (req, res) => {
+  let doc = await Users.findOne({ _id: req.params.id });
+
+  res.json(doc);
+});
+
+app.put('/profile', async (req, res) => {
+  try {
+    var form = new formidable.IncomingForm();
+    form.parse(req, async (err, fields, files) => {
+      let doc = await Users.findByIdAndUpdate({ _id: fields.id }, fields);
+
+      res.json({ result: 'success', message: 'Update Successfully!!' })
+    })
+  } catch (error) {
+    res.json({ result: 'error', message: error.errmsg })
+  }
+});
+
+uploadImage = async (files, doc) => {
+  if(files.avatars != null) {
+    var fileExtension = files.avatars.name.split(".").pop();
+    doc.avatars = `${Date.now()}+${doc.username}.${fileExtension}`;
+    var newpath = path.resolve(__dirname + '/uploaded/images/') + "/" + doc.avatars;
+
+    if(fs.exists(newpath)) {
+      await fs.remove(newpath);
+    }
+
+    await fs.move(files.avatars.path, newpath);
+
+    await Users.findOneAndUpdate({ _id: doc.id }, doc);
+  }
+};
 
 const port = 8080;
 

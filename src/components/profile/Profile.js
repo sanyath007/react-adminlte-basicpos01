@@ -41,8 +41,54 @@ class Profile extends Component {
     }
   }
 
+  componentDidMount() {
+    let { id } = this.parseJwt();
+    
+    this.getData(id);
+  }
+
+  parseJwt() {
+    let token = localStorage.getItem('TOKEN_KEY');
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    var jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(c => {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+
+    return JSON.parse(jsonPayload);
+  }
+
+  getData = async id => {
+    await axios.get('http://localhost:8080/profile/id/' + id)
+      .then(res => {
+        this.setState({ response: res.data })
+      })
+      .catch(err => {
+        this.setState({ error_message: err.message })
+      });
+  };
+
   submitForm = async formData => {
-    console.log(formData);
+    await axios.put('http://localhost:8080/profile', formData)
+      .then(res => {
+        console.log(res.data);
+        if(res.data.result === 'success') {
+          swal('Success!', res.data.message, 'success').then(value => {
+
+          });
+        } else {
+          swal('Error!', res.data.message, 'error');
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        swal('Error!', "Unexpected error", 'error');
+      })
   }
 
   showForm = ({
@@ -59,6 +105,27 @@ class Profile extends Component {
       <form role="form" onSubmit={handleSubmit}>
         <div className="card-body">
           <input type="hidden" name="id" value={values._id} />
+
+          <div className="form-group has-feedback">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              onChange={handleChange}
+              value={values.email}
+              className={
+                errors.email && touched.email
+                  ? "form-control is-invalid"
+                  : "form-control"
+              }
+              id="email"
+              placeholder="Enter Email"
+            />
+            { errors.email && touched.email ? (
+              <small id="passwordHelp" class="text-danger">
+                {errors.email}
+              </small>
+            ) : null }
+          </div>
           <div className="form-group has-feedback">
             <label htmlFor="username">Username</label>
             <input
@@ -174,7 +241,8 @@ class Profile extends Component {
   }
   render() {
     let result = this.state.response;
-
+    console.log(result);
+    
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -200,6 +268,7 @@ class Profile extends Component {
                   </div>
 
                   <Formik
+                    enableReinitialize={true}
                     initialValues={
                       result
                         ? result
