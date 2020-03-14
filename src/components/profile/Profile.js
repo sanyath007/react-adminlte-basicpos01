@@ -66,30 +66,48 @@ class Profile extends Component {
   getData = async id => {
     await axios.get('http://localhost:8080/profile/id/' + id)
       .then(res => {
+        document.getElementById('avatars').src = `http://localhost:8080/images/${res.data.avatars}`
         this.setState({ response: res.data })
       })
       .catch(err => {
         this.setState({ error_message: err.message })
       });
   };
-
-  submitForm = async formData => {
+  
+  submitForm = async formData => {    
     await axios.put('http://localhost:8080/profile', formData)
-      .then(res => {
-        console.log(res.data);
-        if(res.data.result === 'success') {
-          swal('Success!', res.data.message, 'success').then(value => {
-
-          });
-        } else {
-          swal('Error!', res.data.message, 'error');
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        swal('Error!', "Unexpected error", 'error');
-      })
+    .then(res => {
+      console.log(res.data);
+      if(res.data.result === 'success') {
+        swal('Success!', res.data.message, 'success').then(value => {
+          
+        });
+      } else {
+        swal('Error!', res.data.message, 'error');
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      swal('Error!', "Unexpected error", 'error');
+    })
   }
+  
+  showPreviewImage = values => {
+    return (
+      <div className="text-center">
+        <img
+          id="avatars"
+          src={
+            values.file_obj !== null
+              ? values.file_obj
+              : "http//localhost:8080/images/user.png"
+          }
+          className="profile-user-img img-fluid img-circle"
+          width={100}
+        />
+      </div>
+    )
+  };
 
   showForm = ({
     values,
@@ -97,19 +115,54 @@ class Profile extends Component {
     touched,
     handleChange,
     handleSubmit,
-    onSubmit,
     isSubmitting,
     setFieldValue
   }) => {    
     return (
       <form role="form" onSubmit={handleSubmit}>
+        { this.showPreviewImage(values) }
         <div className="card-body">
+
+          <span style={{ color: '#00B0CD', marginLeft: 10 }}>Add Picture</span>
+          <div className="form-group">
+            <div className="input-group">
+              <div className="custom-file">
+                <input
+                  type="file"
+                  onChange={e => {
+                    e.preventDefault();
+                    setFieldValue('avatars', e.target.files[0]) /** For upload */
+                    setFieldValue(
+                      'file_obj',
+                      URL.createObjectURL(e.target.files[0])
+                    ) /** For preview */
+                  }}
+                  name='avatars'
+                  className={
+                    errors.avatars && touched.avatars
+                      ? 'form-control is-invalid'
+                      : 'form-control'
+                  }
+                  accept="image/*"
+                  id="avatars"
+                  className="custom-file-input"
+                  id="exampleInputFile"
+                />
+                <label className="custom-file-label" htmlFor="exampleInputFile">
+                  Choose file
+                </label>
+              </div>
+            </div>
+          </div>
+
           <input type="hidden" name="id" value={values._id} />
 
           <div className="form-group has-feedback">
             <label htmlFor="email">Email</label>
             <input
               type="email"
+              id="email"
+              name="email"
               onChange={handleChange}
               value={values.email}
               className={
@@ -117,7 +170,6 @@ class Profile extends Component {
                   ? "form-control is-invalid"
                   : "form-control"
               }
-              id="email"
               placeholder="Enter Email"
             />
             { errors.email && touched.email ? (
@@ -241,8 +293,8 @@ class Profile extends Component {
   }
   render() {
     let result = this.state.response;
-    console.log(result);
-    
+    console.log(result);    
+
     return (
       <div className="content-wrapper">
         <section className="content-header">
@@ -271,21 +323,28 @@ class Profile extends Component {
                     enableReinitialize={true}
                     initialValues={
                       result
-                        ? result
+                        ? {
+                            id: result._id || '',
+                            email: result.email || '',
+                            username: result.username || '',
+                            first_name: result.first_name || '',
+                            last_name: result.last_name || '',
+                            phone: result.phone || '',
+                            address: result.address || ''
+                          }
                         : {
-                          id: '',
-                          username: '',
-                          email: '',
-                          first_name: '',
-                          last_name: '',
-                          phone: '',
-                          address: ''
-                        }
+                            id: '',
+                            email: '',
+                            username: '',
+                            first_name: '',
+                            last_name: '',
+                            phone: '',
+                            address: ''
+                          }
                     }
-
                     onSubmit={(values, { setSubmitting }) => {
                       let formData = new FormData();
-                      formData.append("id", values._id);
+                      formData.append("id", values.id);
                       formData.append("username", values.username);
                       formData.append("first_name", values.first_name);
                       formData.append("last_name", values.last_name);
@@ -296,8 +355,7 @@ class Profile extends Component {
                       if(values.avatars) {
                         formData.append("avatars", values.avatars);
                       }
-                      
-                      console.log(values.avatars);
+
                       this.submitForm(formData, this.props.history);
                       setSubmitting(false)
                     }}

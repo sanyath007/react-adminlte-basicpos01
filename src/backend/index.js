@@ -104,8 +104,10 @@ app.get('/profile/id/:id', async (req, res) => {
 app.put('/profile', async (req, res) => {
   try {
     var form = new formidable.IncomingForm();
+
     form.parse(req, async (err, fields, files) => {
       let doc = await Users.findByIdAndUpdate({ _id: fields.id }, fields);
+      await uploadImage(files, fields);
 
       res.json({ result: 'success', message: 'Update Successfully!!' })
     })
@@ -119,7 +121,8 @@ uploadImage = async (files, doc) => {
     var fileExtension = files.avatars.name.split(".").pop();
     doc.avatars = `${Date.now()}+${doc.username}.${fileExtension}`;
     var newpath = path.resolve(__dirname + '/uploaded/images/') + "/" + doc.avatars;
-
+    console.log(newpath);
+    
     if(fs.exists(newpath)) {
       await fs.remove(newpath);
     }

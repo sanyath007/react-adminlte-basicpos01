@@ -7,7 +7,7 @@ class Header extends Component {
     super(props);
   }
 
-  logout = (e) => {
+  logout = (e) => {    
     e.preventDefault();
     
     swal('Are you sure logout?', {
