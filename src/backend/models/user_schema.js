@@ -8,8 +8,8 @@ const schema = mongoose.Schema({
   phone: { type: String, default: "" },
   address: { type: String, default: "" },
   password: String,
-  // status: { type: String, default: "not_activated" },
-  // activated_token: { type: String, default: "" },
+  status: { type: String, default: "not_activated" },
+  activated_token: { type: String, default: "" },
   // resetPasswordToken: { type: String, default: "" },
   level: { type: String, default: "staff" },
   created: { type: Date, default: Date.now }

@@ -32,15 +32,18 @@ class Login extends Component {
   submitForm = (values, history) => {
     axios.post('http://localhost:8080/login', values)
       .then(res => {
-        console.log(res);
         if(res.data.result === 'success') {
+          console.log('SUCCESS');
           localStorage.setItem('TOKEN_KEY', res.data.token);
           swal('Success!', res.data.message, 'success')
             .then(value => {
               history.push('/dashboard');
             });
+        } else {
+          swal('Error!', res.data.message, 'error');  
         }
-        swal('Success!', res.data.message, 'success');
+
+        // swal('Success!', res.data.message, 'success');
       })
       .catch(err => {
         console.log(err);

@@ -65,7 +65,7 @@ class Register extends Component {
             }
             placeholder="Username"
           />
-          {errors.fullname && touched.fullname ? (
+          {errors.username && touched.username ? (
             <small id="passwordHelp" className="text-danger">
               {errors.username}
             </small>
@@ -157,7 +157,7 @@ class Register extends Component {
 
               <Formik
                 initialValues={{
-                  fullname: "",
+                  username: "",
                   email: "",
                   password: "",
                   confirm_password: ""

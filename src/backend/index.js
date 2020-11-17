@@ -24,23 +24,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 sgMail.setApiKey(
-  "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"
+  process.env.SENDGRID_API_KEY
 );
+// "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"
 
 app.post('/login', async (req, res) => {
   let doc = await Users.findOne({ username: req.body.username });
 
   if(doc) {
     if(bcrypt.compareSync(req.body.password, doc.password)) {
-      const payload = {
-        id: doc._id,
-        level: doc.level,
-        username: doc.username
-      };
+      if(doc.status !== 'not_activated') {
+        const payload = {
+          id: doc._id,
+          level: doc.level,
+          username: doc.username
+        };
 
-      let token = jwt.sign(payload);
-
-      res.json({ result: 'success', token, message: 'login successfully!!'});
+        let token = jwt.sign(payload);
+  
+        res.json({ result: 'success', token, message: 'login successfully!!'});
+      } else {
+        return res.json({
+          result: 'error',
+          message: 'Your need to activate account first!!'
+        });
+      }
     } else {
       res.json({ result: 'error', message: 'Invalid password!!'});
     }

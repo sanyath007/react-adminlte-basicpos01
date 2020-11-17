@@ -5,7 +5,22 @@ import axios from 'axios';
 import swal from 'sweetalert';
 import fs from 'fs';
 
+const FILE_SIZE = 160 * 1024;
+const SUPPORTED_FORMAT = ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'];
+
 const ProfileSchema = Yup.object().shape({
+  avatars: Yup.mixed()
+    .required('A file is required!!')
+    .test(
+      'fileSize',
+      'File too large',
+      value => value && value.size <= FILE_SIZE
+    )
+    .test(
+      'fileFormat',
+      'Unsupported format',
+      value => value && SUPPORTED_FORMAT.includes(value.type)
+    ),
   username: Yup.string()
     .min(2, 'Username is too short!!')
     .max(50, 'Username is too long!!')
@@ -359,6 +374,7 @@ class Profile extends Component {
                       this.submitForm(formData, this.props.history);
                       setSubmitting(false)
                     }}
+                    validationSchema={ProfileSchema}
                   >
                     {props => this.showForm(props)}
                   </Formik>
